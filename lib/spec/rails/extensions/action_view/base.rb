@@ -19,8 +19,13 @@ module ActionView #:nodoc:
     end
     alias_method_chain :render_partial, :base_view_path_handling
 
-    def render_with_mock_proxy(options = {}, old_local_assigns = {}, &block)
-      if render_proxy.__send__(:__mock_proxy).__send__(:find_matching_expectation, :render, options, old_local_assigns)
+    def render_with_mock_proxy(*args, &block)
+      options, old_local_assigns = args
+      options = {} if args.size < 1
+      old_local_assigns = {} if args.size < 2
+      # Don't call find_matching_expectation when there is only one or zero parameters as it might trigger the warning
+      # "warning: multiple values for a block parameter"
+      if args.size > 1 && render_proxy.__send__(:__mock_proxy).__send__(:find_matching_expectation, :render, options, old_local_assigns)
         render_proxy.render(options, old_local_assigns)
       elsif render_proxy.__send__(:__mock_proxy).__send__(:find_matching_expectation, :render, options)
         render_proxy.render(options)

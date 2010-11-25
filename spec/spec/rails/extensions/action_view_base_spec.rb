@@ -26,6 +26,16 @@ describe ActionView::Base, "with RSpec extensions:", :type => :view do
       result = template.render :partial => "name"
       result.should == "Little Johnny"
     end
+
+    it 'should not give a warning when called with a block parameter' do
+      captured_stderr = StringIO.new
+      $stderr = captured_stderr
+      template.should_receive(:render).with { |args| "Little Johnny" }
+      result = template.render :partial => "name"
+
+      captured_stderr.string.should_not match(/warning: multiple values for a block parameter/)
+      $stderr = STDERR
+    end
   end
   
   [:stub!, :stub].each do |method|
